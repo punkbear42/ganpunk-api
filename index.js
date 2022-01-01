@@ -23,7 +23,7 @@ app.get('/', (req,res) => {
 })
 
 app.get('/:id', async (req,res) => {
-    
+    console.log(JSON.stringify(process.env))
     const gan_contract = contracts[4].contracts.GAN_PUNK
     // onsole.log(gan_contract)
     let contract = new ethers.Contract(gan_contract.address, gan_contract.abi, provider)
@@ -57,7 +57,6 @@ app.get('/:id', async (req,res) => {
     res.status(200).json(metadata)
 })
 
-console.log(JSON.stringify(process.env))
 app.listen(process.env.PORT || 8081, async () => {
     model = await tf.loadLayersModel('http://localhost:8081/model/model.json')
     console.log("listening...")
