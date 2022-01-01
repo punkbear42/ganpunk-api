@@ -12,6 +12,8 @@ const { ethers } = require('ethers');
 let model
 let provider = new ethers.providers.StaticJsonRpcProvider('https://rinkeby.infura.io/v3/78040c38a1eb436a9ce429fa1746d16c')
 
+const host = 'ganpunk.herokuapp.com'
+
 app.use(express.json())
 
 app.use('/punks', express.static('punks'));
@@ -23,7 +25,7 @@ app.get('/', (req,res) => {
 })
 
 app.get('/:id', async (req,res) => {
-    console.log(JSON.stringify(process.env))
+    // console.log(JSON.stringify(process.env))
     const gan_contract = contracts[4].contracts.GAN_PUNK
     // onsole.log(gan_contract)
     let contract = new ethers.Contract(gan_contract.address, gan_contract.abi, provider)
@@ -45,7 +47,7 @@ app.get('/:id', async (req,res) => {
     const metadata = {
         "name": "punk #" + req.params.id,
         "description": "description #" + req.params.id,
-        "image": 'https://7581-2a02-8109-86c0-6b18-4071-e479-9067-cf5f.ngrok.io/punks/' + fileNameResized,
+        "image": 'https://' + host + '/punks/' + fileNameResized,
         "network": 'Rinkeby'
     }
     
@@ -58,6 +60,6 @@ app.get('/:id', async (req,res) => {
 })
 
 app.listen(process.env.PORT || 8081, async () => {
-    model = await tf.loadLayersModel('http://localhost:8081/model/model.json')
+    model = await tf.loadLayersModel('https://' + host + '/model/model.json')
     console.log("listening...")
 })
