@@ -23,7 +23,7 @@ app.get('/', (req,res) => {
     res.status(200).json({})
 })
 
-app.get('/:address/:id', async (req,res) => {
+app.get('/:id', async (req,res) => {
     // console.log(JSON.stringify(process.env))
     const gan_contract = contracts[4].contracts.GAN_PUNK
     // onsole.log(gan_contract)
