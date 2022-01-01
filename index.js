@@ -57,7 +57,8 @@ app.get('/:id', async (req,res) => {
     res.status(200).json(metadata)
 })
 
-app.listen(8081, async () => {
+console.log(JSON.stringify(process.env))
+app.listen(process.env.PORT || 8081, async () => {
     model = await tf.loadLayersModel('http://localhost:8081/model/model.json')
     console.log("listening...")
 })
