@@ -2,7 +2,6 @@ const express = require('express')
 const contracts = require('./external_contracts.js')
 const fs = require('fs')
 const app = express()
-const sharp = require('sharp')
 
 PNG = require("pngjs").PNG;
 
@@ -24,7 +23,7 @@ app.get('/', (req,res) => {
     res.status(200).json({})
 })
 
-app.get('/:id', async (req,res) => {
+app.get('/:address/:id', async (req,res) => {
     // console.log(JSON.stringify(process.env))
     const gan_contract = contracts[4].contracts.GAN_PUNK
     // onsole.log(gan_contract)
@@ -42,19 +41,15 @@ app.get('/:id', async (req,res) => {
     const png = new PNG({ filterType: 4, width: 24, height: 24 })
     png.data = Buffer.from(Uint8ClampedArray.from(data))
 
-    const fileNameOrg = 'punk' + req.params.id + '_org.png'
-    const fileNameResized = 'punk' + req.params.id + '.png'
+    const fileName = 'punk' + req.params.id + '.png'
+
     const metadata = {
         "name": "punk #" + req.params.id,
         "description": "description #" + req.params.id,
-        "image": 'https://' + host + '/punks/' + fileNameResized,
-        "network": 'Rinkeby'
+        "image": 'https://' + host + '/punks/' + fileName
     }
     
-    png.pack().pipe(fs.createWriteStream('./punks/' + fileNameOrg));
-    setTimeout(() => {
-        sharp('./punks/' + fileNameOrg).resize({ height:336, width:336}).toFile('./punks/' + fileNameResized)
-    }, 2000)    
+    png.pack().pipe(fs.createWriteStream('./punks/' + fileName));
 
     res.status(200).json(metadata)
 })
