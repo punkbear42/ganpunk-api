@@ -46,7 +46,8 @@ app.get('/:id', async (req,res) => {
     const metadata = {
         "name": "punk #" + req.params.id,
         "description": "description #" + req.params.id,
-        "image": 'https://' + host + '/punks/' + fileName
+        "image": 'https://' + host + '/punks/' + fileName,
+        "external_url": 'https://punksgan.surge.sh/otherspunk?search=' + req.params.id
     }
     
     png.pack().pipe(fs.createWriteStream('./punks/' + fileName));
