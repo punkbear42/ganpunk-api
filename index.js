@@ -1,6 +1,7 @@
 const express = require('express')
 const contracts = require('./external_contracts.js')
 const fs = require('fs')
+const sharp = require('sharp')
 const app = express()
 
 PNG = require("pngjs").PNG;
@@ -42,15 +43,18 @@ app.get('/:id', async (req,res) => {
     png.data = Buffer.from(Uint8ClampedArray.from(data))
 
     const fileName = 'punk' + req.params.id + '.png'
-
+    const fileNameResized = 'punk' + req.params.id + '_240.png'
     const metadata = {
         "name": "punk #" + req.params.id,
         "description": "description #" + req.params.id,
-        "image": 'https://' + host + '/punks/' + fileName,
+        "image": 'https://' + host + '/punks/' + fileNameResized,
         "external_url": 'https://punksgan.surge.sh/otherspunk?search=' + req.params.id
     }
     
     png.pack().pipe(fs.createWriteStream('./punks/' + fileName));
+    setTimeout(() => {
+        sharp('./punks/' + fileName).resize({ height:240, width:240}).toFile('./punks/' + fileNameResized)
+    }, 500)
 
     res.status(200).json(metadata)
 })
