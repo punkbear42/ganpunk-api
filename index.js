@@ -1,13 +1,14 @@
 const express = require('express')
 const contracts = require('./external_contracts.js')
 const fs = require('fs')
-const sharp = require('sharp')
+const { createImageData } = require('canvas')
 const app = express()
 
 PNG = require("pngjs").PNG;
 
 const tf = require('@tensorflow/tfjs');
 const { ethers } = require('ethers');
+const { scalePixels } = require('./lib/scalePixels');
 
 let model
 let provider = new ethers.providers.StaticJsonRpcProvider('https://rinkeby.infura.io/v3/78040c38a1eb436a9ce429fa1746d16c')
@@ -42,8 +43,10 @@ app.get('/:id', async (req,res) => {
     const png = new PNG({ filterType: 4, width: 24, height: 24 })
     png.data = Buffer.from(Uint8ClampedArray.from(data))
 
+    const resizeMultiplier = 12
+
     const fileName = 'punk' + req.params.id + '.png'
-    const fileNameResized = 'punk' + req.params.id + '_240.png'
+    const fileNameResized = 'punk' + req.params.id + '_' + resizeMultiplier + '.png'
     const metadata = {
         "name": "punk #" + req.params.id,
         "description": "description #" + req.params.id,
@@ -52,11 +55,16 @@ app.get('/:id', async (req,res) => {
     }
     
     png.pack().pipe(fs.createWriteStream('./punks/' + fileName));
-    setTimeout(() => {
-        sharp('./punks/' + fileName).resize({ height:240, width:240}).toFile('./punks/' + fileNameResized)
-    }, 500)
-
-    res.status(200).json(metadata)
+    const scale10ImageData = scalePixels(createImageData(Uint8ClampedArray.from(data), 24, 24), resizeMultiplier, { from: 1 })
+    const pngResized = new PNG({ filterType: 4, width: scale10ImageData.width, height: scale10ImageData.height })
+    pngResized.data = Buffer.from(scale10ImageData.data)
+    const stream = fs.createWriteStream('./punks/' + fileNameResized)
+    stream.on('finish', function(){
+        res.status(200).json(metadata)    
+    });
+    pngResized.pack().pipe(stream);
+    
+    
 })
 
 app.listen(process.env.PORT || 8081, async () => {
